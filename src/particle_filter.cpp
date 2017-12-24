@@ -34,8 +34,8 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
 	// normal distribution for measurement input
 	std::normal_distribution<double> x_(x,std[0]);
-	std::normal_distribution<double> y_(x,std[1]);
-	std::normal_distribution<double> theta_(x,std[2]);
+	std::normal_distribution<double> y_(y,std[1]);
+	std::normal_distribution<double> theta_(theta,std[2]);
 
 	// loop through particles to initialise position and noise
 	for (unsigned int i=0; i<num_particles; i++){
@@ -51,8 +51,6 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 		p.x = x_(idx);
 		p.y = y_(idx);
 		p.theta = theta_(idx);
-		if (p.theta>2*M_PI) p.theta -= 2*M_PI;
-		if (p.theta<0) p.theta += 2*M_PI;
 		// push particle to particles list
 		particles.push_back(p);
 		// add initial weight to weight vector
@@ -99,8 +97,6 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		p.x = x_(idx);
 		p.y = y_(idx);
 		p.theta = theta_(idx);
-		if (p.theta>2*M_PI) p.theta -= 2*M_PI;
-		if (p.theta<0) p.theta += 2*M_PI;
 	}
 }
 
@@ -155,10 +151,11 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   http://planning.cs.uiuc.edu/node99.html
 
 	double sum_weights = 0.0;
+
+	unsigned int j = 0;
 	
 	for (auto &p:particles){
 		// index for weights vector;
-		unsigned int j = 0;
 		// vector of transformed observation for each particle
 		vector<LandmarkObs> obs_transformed;
 
